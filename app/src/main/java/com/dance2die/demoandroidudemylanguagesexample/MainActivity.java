@@ -1,5 +1,9 @@
 package com.dance2die.demoandroidudemylanguagesexample;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -8,8 +12,38 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
+
+    private TextView textView;
+
+    public void showAlert(){
+        final SharedPreferences sharedPreferences = getPrivateSharedReferences();
+        new AlertDialog.Builder(this)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setMessage("Choose your language")
+                .setTitle("Pick you Language between \"English\" and \"Korean\"")
+                .setPositiveButton("English", new DialogInterface.OnClickListener(){
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        sharedPreferences.edit().putString("language", "English").apply();
+                        textView.setText("English");
+                    }
+                })
+                .setNegativeButton("Korean", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        sharedPreferences.edit().putString("language", "Korean").apply();
+                        textView.setText("Korean");
+                    }
+                })
+                .show();
+    }
+
+    public SharedPreferences getPrivateSharedReferences(){
+        return this.getSharedPreferences("com.dance2die.demoandroidudemylanguagesexample", Context.MODE_PRIVATE);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +61,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        
+        textView = (TextView) findViewById(R.id.textView);
+
+        String selectedLanguage = getPrivateSharedReferences().getString("language", "");
+        if (selectedLanguage == ""){
+            showAlert();
+        } else {
+            textView.setText("Selected Language: " + selectedLanguage);
+        }
     }
 
     @Override
@@ -45,7 +86,8 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.changeLanguage) {
+            showAlert();
             return true;
         }
 
